@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.2.1] - 2026-05-04
+
+### Added
+- SKILL.md "Research Type별 권장 골격" 섹션 — Exploratory/Comparative/Predictive/Analytical/Generic 5 type 매핑 (advanced opt-in)
+
+### Preserved (모든 결정 contract 그대로 유지)
+- 7-Phase 강제 + 기본 5섹션 보고서 골격 (resume protocol)
+- A-E source quality 등급 + minimum 2 sources
+- citation 5 elements (Author/Date/Title/URL/Page)
+- Hallucination Prevention 4 strategies
+- state.json / sources.jsonl schema
+- Date-aware query generation (CRITICAL)
+
+→ ADDITIVE only. 기본 동작은 그대로, type별 골격은 사용자 명시 confirm 시에만 사용.
+
 ## [2.2.0] - 2026-03-16
 
 ### Added
