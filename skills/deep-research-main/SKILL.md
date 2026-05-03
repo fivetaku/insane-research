@@ -428,6 +428,35 @@ Use the templates at `${CLAUDE_PLUGIN_ROOT}/skills/deep-research-main/assets/tem
 
 ---
 
+### Research Type별 권장 골격 (참고용 — 기본 5섹션은 그대로 유지)
+
+기본 5섹션 골격(introduction/landscape/challenges/future_outlook/conclusions)이 모든 리서치에 적용된다. 단, 사용자가 명시적으로 다른 type을 요청한 경우 아래 골격을 advanced 옵션으로 사용 가능.
+
+> **주의**: 기본 7-Phase + 5섹션 + Date-aware는 모두 deep-research의 핵심 contract로 보존된다. 본 type별 골격은 **사용자 명시 요청 시에만** 적용되는 advanced 옵션.
+
+| Research Type | 권장 5섹션 (기본 대체 가능) | 적합 사례 |
+|---|---|---|
+| **Exploratory** (새 영역 탐색) | introduction / landscape / opportunities / challenges / conclusions | 신규 시장/기술 탐색 |
+| **Comparative** (A vs B 비교) | introduction / criteria / comparison_matrix / recommendation / conclusions | 도구/제품 비교 |
+| **Predictive** (미래 시나리오) | introduction / current_state / trends / scenarios / risks_and_recommendations | 시장 예측 / 기술 로드맵 |
+| **Analytical** (원인-결과) | introduction / problem / causes / effects / conclusions | 사건 분석 / 인과 추적 |
+| **기본 (Generic)** | introduction / current_landscape / challenges / future_outlook / conclusions | 종합 리서치 (default) |
+
+#### 적용 절차
+
+1. Phase 1 (Question Scoping)에서 사용자 자연어로부터 type 추정 (단순 fact-check / 비교 / 예측 / 분석 / 종합)
+2. 추정 결과를 사용자에게 confirm: "이 리서치는 [Comparative]에 가까워 보입니다. 골격을 [introduction / criteria / comparison_matrix / ...]으로 진행할까요? 또는 기본 5섹션으로?"
+3. 사용자 confirm → 해당 골격 사용 / 사용자 미명시 또는 모호 → **기본 5섹션 사용 (안전 default)**
+4. state.json `report_skeleton` 필드에 선택된 골격 기록 (resume 가능)
+
+#### ⚠️ 주의사항
+
+- type 자동 결정 금지 — 사용자 confirm 필수
+- 7-Phase / minimum 2 sources / A-E quality / Hallucination Prevention 등 결정 contract는 모두 그대로 유지
+- 본 골격 매핑은 advanced 옵션이며, 기본 동작은 5섹션 그대로
+
+---
+
 ## Structured Query Support
 
 For precise research control, accept structured JSON queries following the schema at:
