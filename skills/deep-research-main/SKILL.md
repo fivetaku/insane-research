@@ -428,13 +428,21 @@ Use the templates at `${CLAUDE_PLUGIN_ROOT}/skills/deep-research-main/assets/tem
 
 ---
 
-### Research Type별 권장 골격 (참고용 — 기본 5섹션은 그대로 유지)
+### Research Type 기반 골격 동적 생성 (참고용 — 기본 5섹션은 그대로 유지)
 
-기본 5섹션 골격(introduction/landscape/challenges/future_outlook/conclusions)이 모든 리서치에 적용된다. 단, 사용자가 명시적으로 다른 type을 요청한 경우 아래 골격을 advanced 옵션으로 사용 가능.
+기본 5섹션 골격(introduction/landscape/challenges/future_outlook/conclusions)이 모든 리서치의 default. 사용자가 명시적으로 다른 type을 요청한 경우, 아래 **참고 예시 패턴**을 보고 사용자 리서치에 맞게 골격을 **즉석 동적 생성**한다.
 
-> **주의**: 기본 7-Phase + 5섹션 + Date-aware는 모두 deep-research의 핵심 contract로 보존된다. 본 type별 골격은 **사용자 명시 요청 시에만** 적용되는 advanced 옵션.
+> **주의**: 기본 7-Phase + 5섹션 + Date-aware는 모두 deep-research의 핵심 contract로 보존. 본 type별 골격은 **사용자 명시 요청 시에만** 적용되는 advanced 옵션이며, 표는 카탈로그 메뉴가 아니라 **동적 생성 학습용 예시**다.
 
-| Research Type | 권장 5섹션 (기본 대체 가능) | 적합 사례 |
+#### 동적 생성 원칙
+
+- 사용자 리서치 핵심 → **5 섹션 슬롯 채우기**: 도입(introduction) / 핵심 분석 / 비교/예측/원인 등 도메인 특화 / 한계와 위험 / 결론
+- 같은 type이라도 사용자 주제에 따라 섹션 명을 다르게 (단순 카피 금지)
+- 표의 섹션 명은 **그대로 사용하지 말고**, 사용자 주제에 맞는 명칭으로 변환
+
+#### 참고 예시 (메뉴 아님 — 패턴 학습용)
+
+| Research Type | 5섹션 패턴 예시 | 적합 사례 |
 |---|---|---|
 | **Exploratory** (새 영역 탐색) | introduction / landscape / opportunities / challenges / conclusions | 신규 시장/기술 탐색 |
 | **Comparative** (A vs B 비교) | introduction / criteria / comparison_matrix / recommendation / conclusions | 도구/제품 비교 |
@@ -442,18 +450,23 @@ Use the templates at `${CLAUDE_PLUGIN_ROOT}/skills/deep-research-main/assets/tem
 | **Analytical** (원인-결과) | introduction / problem / causes / effects / conclusions | 사건 분석 / 인과 추적 |
 | **기본 (Generic)** | introduction / current_landscape / challenges / future_outlook / conclusions | 종합 리서치 (default) |
 
+→ 위는 **패턴 학습용 예시**. 사용자 주제가 "X 시장의 한국 vs 일본 차이"면 Comparative 패턴으로 `introduction / 시장규모비교 / 사용자행동차이 / 규제차이 / 진입전략추천` 같이 섹션 명을 즉석 변환.
+
 #### 적용 절차
 
-1. Phase 1 (Question Scoping)에서 사용자 자연어로부터 type 추정 (단순 fact-check / 비교 / 예측 / 분석 / 종합)
-2. 추정 결과를 사용자에게 confirm: "이 리서치는 [Comparative]에 가까워 보입니다. 골격을 [introduction / criteria / comparison_matrix / ...]으로 진행할까요? 또는 기본 5섹션으로?"
-3. 사용자 confirm → 해당 골격 사용 / 사용자 미명시 또는 모호 → **기본 5섹션 사용 (안전 default)**
-4. state.json `report_skeleton` 필드에 선택된 골격 기록 (resume 가능)
+1. Phase 1 (Question Scoping)에서 사용자 자연어로부터 리서치 type 추정 (Exploratory / Comparative / Predictive / Analytical / Generic 패턴 중 가장 가까운 것)
+2. 위 예시 패턴을 학습한 후, **사용자 주제에 맞춰 5 섹션 명을 동적 생성**
+3. 사용자에게 confirm: "이 리서치는 [Comparative] 패턴에 가까워 보입니다. 5섹션을 [introduction / X 비교 기준 / X vs Y 비교 / 추천 / 결론]으로 진행할까요? 또는 기본 5섹션으로?"
+4. 사용자 confirm → 동적 생성된 골격 사용 / 사용자 미명시 또는 모호 → **기본 5섹션 사용 (안전 default)**
+5. state.json `report_skeleton` 필드에 최종 결정된 골격 기록 (resume 가능)
 
 #### ⚠️ 주의사항
 
 - type 자동 결정 금지 — 사용자 confirm 필수
+- 위 표는 메뉴가 아닌 **패턴 학습용 예시** — 섹션 명을 그대로 카피하지 말고 사용자 주제에 맞춰 변환
 - 7-Phase / minimum 2 sources / A-E quality / Hallucination Prevention 등 결정 contract는 모두 그대로 유지
-- 본 골격 매핑은 advanced 옵션이며, 기본 동작은 5섹션 그대로
+- 본 골격 동적 생성은 advanced 옵션이며, 기본 동작은 5섹션 그대로
+- 새 type 사례를 본 표에 추가하지 말 것 — 이 표는 카탈로그가 아닌 패턴 예시집
 
 ---
 
