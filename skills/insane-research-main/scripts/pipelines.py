@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Deep Research Pipeline Definitions
+Insane Research Pipeline Definitions
 """
 
 from typing import Dict, List, Any, Optional
@@ -394,3 +394,40 @@ def get_verification_prompt(claims: List[str], subtopic: str) -> str:
 
 def get_synthesis_prompt(subtopic: str, findings: str) -> str:
     return SYNTHESIS_PROMPT.format(subtopic=subtopic, findings=findings)
+
+
+def classify_claim_status(claim: Dict) -> str:
+    """P0 abstention rule: decide verified/refuted/unresolved for a claim ledger record.
+
+    claim keys: source_count (int), conflicting (bool), primary_source (bool),
+    strong (bool: numeric/legal/causal claim), counter_refuted (bool).
+    "모르면 미확정"을 단정보다 우선한다.
+    """
+    if claim.get("counter_refuted"):
+        return "refuted"
+    if claim.get("source_count", 0) < 2:
+        return "unresolved"
+    if claim.get("conflicting"):
+        return "unresolved"
+    if claim.get("strong") and not claim.get("primary_source"):
+        return "unresolved"
+    return "verified"
+
+
+def strict_verification_handoff(ledger: List[Dict]) -> List[Dict]:
+    """P2 strict mode: pick unresolved/high-risk claims for adversarial re-verification
+    via the deep-research Workflow harness. Returns handoff payloads only (cost control —
+    NOT the whole ledger). Default (non-strict) mode skips this entirely.
+
+    Each payload: {"claim", "workflow": "deep-research", "question"}.
+    """
+    handoffs = []
+    for claim in ledger:
+        status = claim.get("status") or classify_claim_status(claim)
+        if status == "unresolved" or claim.get("high_risk"):
+            handoffs.append({
+                "claim": claim.get("claim", ""),
+                "workflow": "deep-research",
+                "question": claim.get("verification_question") or claim.get("claim", ""),
+            })
+    return handoffs

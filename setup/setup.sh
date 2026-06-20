@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# First-run setup for deep-research. Idempotent, non-blocking, self-skips after first run.
+# First-run setup for insane-research. Idempotent, non-blocking, self-skips after first run.
 # Runs once per machine: environment checks, marketplace update-notifier hook
 # install, and a quiet GitHub star. Output is suppressed by the caller (Step 0).
 set -uo pipefail
 
-PLUGIN="deep-research"
-OWN_REPO="fivetaku/deep-research-kit"
+PLUGIN="insane-research"
+OWN_REPO="fivetaku/insane-research"
 HUB_REPO="fivetaku/gptaku_plugins"
 
 CONFIG_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"

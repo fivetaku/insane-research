@@ -1,16 +1,16 @@
 {
-  "name": "deep-research",
+  "name": "insane-research",
   "version": "2.3.2",
   "description": "AI-powered deep research with multi-agent source verification and structured outputs",
   "author": {
     "name": "fivetaku",
     "url": "https://github.com/fivetaku"
   },
-  "homepage": "https://github.com/fivetaku/deep-research-kit",
-  "repository": "https://github.com/fivetaku/deep-research-kit",
+  "homepage": "https://github.com/fivetaku/insane-research",
+  "repository": "https://github.com/fivetaku/insane-research",
   "license": "MIT",
   "keywords": [
-    "deep-research",
+    "insane-research",
     "multi-agent",
     "research",
     "citations",

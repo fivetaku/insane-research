@@ -142,6 +142,29 @@ For each source, evaluate:
 
 ---
 
+## Abstention Rule (미확정 강제)
+
+핵심 주장이 아래 임계를 못 넘으면 단정하지 않고 **`unresolved`("미확정 / 확인 필요")**로 분류한다 (Phase 4 claim ledger 계약):
+
+- 독립 출처 2개 미만
+- 출처 간 충돌이 해소되지 않음
+- 강한 주장(수치·점유율·법령·인과)인데 1차 소스(A/B) 미도달
+- 반증 counter-search에서 신뢰할 만한 반박이 나옴 → `refuted`
+
+"매끄럽게 단정하기"보다 "모르면 미확정"을 우선한다. 미확정·반박 주장은 본문 단정에 쓰지 않고 Unresolved/Refuted 섹션에 모은다.
+
+## Primary-Source-First (1차 소스 우선 검색)
+
+같은 주장이라도 다음을 2차 애그리게이터·블로그보다 **먼저** 시도한다:
+
+- 법령·정책: 정부/법령 DB (law.go.kr, moleg, 관보, 규제기관 공식문서) — A-level
+- 시장·재무: SEC/IR 공시, 1차 통계 — A/B-level
+- 기술·과학: 피어리뷰 논문(DOI), 1차 벤치마크 — A/B-level
+
+ledger의 `primary_source` 플래그로 1차 소스 도달 여부를 기록한다.
+
+---
+
 ## Red Flags - Automatic Quality Reduction
 
 - No author attribution → E

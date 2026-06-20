@@ -395,6 +395,8 @@ mcp_context7_query_docs(libraryId="/facebook/react", query="useEffect")
 
 ## Background Agents for Parallel Research
 
+> ⚠️ **Rate-Limit & Reliability Guard** (SKILL.md): throttle to **2-3 concurrent** per batch, verify liveness after spawn (background agents can silently die with no notification → 무산출), and fall back to **main-thread sequential** when reliability matters. Do NOT launch a large `run_in_background=True` fan-out — it trips server-side rate-limits and the agents die.
+
 ```python
 Task(
     subagent_type="Explore",

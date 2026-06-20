@@ -1,12 +1,12 @@
 English | [한국어](README.ko.md)
 
-# deep-research
+# insane-research
 
-> **AI-powered deep research with multi-agent source verification and structured outputs.**
+> **insane-research — AI-powered multi-agent deep research with source verification and structured outputs.**
 
 Turn a single question into a comprehensive, citation-backed research report — automatically.
 
-[Quick Start](#quick-start) • [Why deep-research?](#why-deep-research) • [How it works](#how-it-works) • [Commands](#commands) • [Output](#output-structure) • [Requirements](#requirements)
+[Quick Start](#quick-start) • [Why insane-research?](#why-insane-research) • [How it works](#how-it-works) • [Commands](#commands) • [Output](#output-structure) • [Requirements](#requirements)
 
 ---
 
@@ -21,7 +21,7 @@ Turn a single question into a comprehensive, citation-backed research report —
 ### 2. Install the plugin
 
 ```
-/plugin install deep-research
+/plugin install insane-research
 ```
 
 ### 3. Restart Claude Code
@@ -31,14 +31,14 @@ Cache loads on startup — a restart is required after install.
 ### 4. Start researching
 
 ```
-/deep-research AI coding assistants productivity impact
+/insane-research AI coding assistants productivity impact
 ```
 
 Claude will ask a few scoping questions, then deploy parallel research agents and deliver a structured report.
 
 ---
 
-## Why deep-research?
+## Why insane-research?
 
 - **Parallel agents, not sequential searches** — 3-5 agents run simultaneously across web, academic, and technical sources, cutting research time significantly
 - **Source quality ratings (A–E)** — Every source is graded from peer-reviewed papers (A) to speculative posts (E), so you always know what you're reading
@@ -90,11 +90,11 @@ Phase 7: Output & Packaging
 
 | Command | Description |
 |---------|-------------|
-| `/deep-research [topic]` | Start a new research session |
-| `/deep-research resume [session_id]` | Resume a previous session |
-| `/deep-research status` | View all session progress |
-| `/deep-research query` | Launch the structured query builder |
-| `/deep-research` | Open the interactive menu |
+| `/insane-research [topic]` | Start a new research session |
+| `/insane-research resume [session_id]` | Resume a previous session |
+| `/insane-research status` | View all session progress |
+| `/insane-research query` | Launch the structured query builder |
+| `/insane-research` | Open the interactive menu |
 
 ### Natural language triggers
 

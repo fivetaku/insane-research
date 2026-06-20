@@ -1,12 +1,12 @@
 [English](README.md) | 한국어
 
-# deep-research
+# insane-research
 
-> **멀티에이전트 소스 검증과 구조화된 산출물을 갖춘 AI 딥리서치 시스템.**
+> **insane-research — 멀티에이전트 소스 검증과 구조화된 산출물을 갖춘 AI 리서치 시스템.**
 
 질문 하나로 인용 출처가 검증된 종합 리서치 리포트를 자동으로 생성합니다.
 
-[빠른 시작](#빠른-시작) • [왜 deep-research인가?](#왜-deep-research인가) • [동작 방식](#동작-방식) • [커맨드](#커맨드) • [산출물](#산출물-구조) • [요구사항](#요구사항)
+[빠른 시작](#빠른-시작) • [왜 insane-research인가?](#왜-insane-research인가) • [동작 방식](#동작-방식) • [커맨드](#커맨드) • [산출물](#산출물-구조) • [요구사항](#요구사항)
 
 ---
 
@@ -21,7 +21,7 @@
 ### 2. 플러그인 설치
 
 ```
-/plugin install deep-research
+/plugin install insane-research
 ```
 
 ### 3. Claude Code 재시작
@@ -31,14 +31,14 @@
 ### 4. 리서치 시작
 
 ```
-/deep-research AI 코드 어시스턴트의 생산성 영향
+/insane-research AI 코드 어시스턴트의 생산성 영향
 ```
 
 Claude가 몇 가지 스코핑 질문을 한 뒤, 병렬 리서치 에이전트를 배포하고 구조화된 리포트를 전달합니다.
 
 ---
 
-## 왜 deep-research인가?
+## 왜 insane-research인가?
 
 - **순차 검색이 아닌 병렬 에이전트** — 3-5개의 에이전트가 웹, 학술, 기술 문서를 동시에 검색하여 리서치 시간을 대폭 단축
 - **소스 품질 등급 (A–E)** — 모든 소스에 피어리뷰 논문(A)부터 추측성 포스트(E)까지 등급을 부여해 신뢰도를 명확히 표시
@@ -90,11 +90,11 @@ Phase 7: 산출물 패키징 (Output & Packaging)
 
 | 커맨드 | 설명 |
 |--------|------|
-| `/deep-research [주제]` | 새로운 리서치 세션 시작 |
-| `/deep-research resume [session_id]` | 이전 세션 이어하기 |
-| `/deep-research status` | 모든 세션 진행 상황 확인 |
-| `/deep-research query` | 구조화된 쿼리 빌더 실행 |
-| `/deep-research` | 인터랙티브 메뉴 열기 |
+| `/insane-research [주제]` | 새로운 리서치 세션 시작 |
+| `/insane-research resume [session_id]` | 이전 세션 이어하기 |
+| `/insane-research status` | 모든 세션 진행 상황 확인 |
+| `/insane-research query` | 구조화된 쿼리 빌더 실행 |
+| `/insane-research` | 인터랙티브 메뉴 열기 |
 
 ### 자연어 트리거
 

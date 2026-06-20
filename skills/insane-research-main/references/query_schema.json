@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Deep Research Query Schema",
+  "title": "Insane Research Query Schema",
   "description": "Structured schema for generating consistent deep research queries",
   "type": "object",
   "required": ["task", "context", "questions", "constraints", "output"],

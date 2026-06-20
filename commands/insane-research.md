@@ -1,5 +1,5 @@
 ---
-name: deep-research
+name: insane-research
 description: "AI 딥리서치 -- 멀티에이전트 기반 종합 리서치 시스템"
 argument-hint: "[topic|resume|status|query]"
 allowed-tools:
@@ -26,10 +26,10 @@ Inspect `$ARGUMENTS` to determine the action:
 
 | Argument Pattern | Action | Skill |
 |-----------------|--------|-------|
-| `resume [session_id]` | Resume a previous research session | deep-research-main |
-| `status` | List all research sessions and their progress | deep-research-main |
-| `query` | Launch interactive query builder | deep-research-query |
-| `[any other text]` | Start new research on the given topic | deep-research-main |
+| `resume [session_id]` | Resume a previous research session | insane-research-main |
+| `status` | List all research sessions and their progress | insane-research-main |
+| `query` | Launch interactive query builder | insane-research-query |
+| `[any other text]` | Start new research on the given topic | insane-research-main |
 | (no argument) | Show interactive menu via AskUserQuestion | See below |
 
 ## No Argument Provided
@@ -55,15 +55,15 @@ Inspect `$ARGUMENTS` to determine the action:
 ```
 
 After user selection:
-- **New Research** → Ask for topic, then invoke deep-research-main skill
-- **Resume Session** → List sessions from `RESEARCH/*/state.json`, let user pick, then invoke deep-research-main resume flow
+- **New Research** → Ask for topic, then invoke insane-research-main skill
+- **Resume Session** → List sessions from `RESEARCH/*/state.json`, let user pick, then invoke insane-research-main resume flow
 - **Session Status** → List all sessions with progress summary
-- **Query Builder** → Invoke deep-research-query skill
+- **Query Builder** → Invoke insane-research-query skill
 
 ## Execute
 
 Once the action is determined, follow the corresponding skill's execution flow.
 
 Skill content is located at:
-- `${CLAUDE_PLUGIN_ROOT}/skills/deep-research-main/SKILL.md` — Main research pipeline
-- `${CLAUDE_PLUGIN_ROOT}/skills/deep-research-query/SKILL.md` — Interactive query builder
+- `${CLAUDE_PLUGIN_ROOT}/skills/insane-research-main/SKILL.md` — Main research pipeline
+- `${CLAUDE_PLUGIN_ROOT}/skills/insane-research-query/SKILL.md` — Interactive query builder

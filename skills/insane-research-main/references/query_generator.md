@@ -1,4 +1,4 @@
-# Deep Research Query Generator
+# Insane Research Query Generator
 
 > Transform vague research ideas into structured, actionable research queries.
 
@@ -385,12 +385,12 @@ Before finalizing, verify:
 
 ---
 
-## Integration with Deep Research Skill
+## Integration with Insane Research Skill
 
-This query feeds directly into the `/deep-research` skill:
+This query feeds directly into the `/insane-research` skill:
 
 ```
-/deep-research [paste JSON query or research brief]
+/insane-research [paste JSON query or research brief]
 ```
 
 The skill will:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Deep Research Orchestrator - State machine controller for research phases.
+Insane Research Orchestrator - State machine controller for research phases.
 """
 
 import json

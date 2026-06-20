@@ -17,6 +17,22 @@
 ### Finding 3: {FINDING_3_TITLE}
 {FINDING_3_CONTENT}
 
+> 각 Finding에는 신뢰도를 표기한다 — **Confidence: high | medium | low** (출처 수·등급·반증 검색 결과 기준).
+
+## Refuted (반박되어 폐기된 주장)
+
+적대적 반증 검색에서 무너진 주장. 본문 단정에 사용하지 않는다.
+
+| 주장 | 폐기 이유 | 출처 |
+|------|-----------|------|
+| {REFUTED_CLAIM} | {REFUTED_REASON} | {REFUTED_SOURCE} |
+
+## Unresolved (미확정 — 확인 필요)
+
+독립 2소스 미만 · 출처 충돌 · 1차 소스 미도달로 확정하지 못한 주장. "확인 필요"로 남긴다.
+
+- {UNRESOLVED_CLAIM_1} — 사유: {UNRESOLVED_REASON_1}
+
 ## Critical Statistics
 
 | Metric | Value | Source |

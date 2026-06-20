@@ -172,11 +172,29 @@ sources/sources.jsonl (one source per line):
 }
 ```
 
+### Claim Ledger (필수 산출 계약)
+`verified_claims`의 각 핵심 주장 레코드는 다음 필드를 포함한다:
+```json
+{
+  "claim": "주장 텍스트",
+  "status": "verified | refuted | unresolved",
+  "confidence": "high | medium | low",
+  "sources": ["src_001", "src_003"],
+  "source_count": 2,
+  "primary_source": true,
+  "counter_search": "반증 검색 1회 결과 요약"
+}
+```
+**Abstention 강제**: `source_count < 2` OR 미해소 충돌 OR (강한 주장인데 `primary_source=false`) → `status=unresolved`. unresolved/refuted 주장은 본문에서 단정 금지.
+
 ### Success Criteria
 - [ ] Key claims have 2+ sources
 - [ ] Contradictions documented
 - [ ] No E-rated sources in final output
 - [ ] Quality distribution reasonable
+- [ ] 모든 핵심 주장이 status(verified/refuted/unresolved)로 분류됨
+- [ ] 각 핵심 주장에 counter_search 결과 존재 (CoV 계약)
+- [ ] unresolved/refuted 주장이 본문 단정에 사용되지 않음
 
 ---
 

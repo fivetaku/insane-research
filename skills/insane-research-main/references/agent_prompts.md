@@ -51,14 +51,16 @@ Never confirm without sources.
 ## Agent Deployment Pattern
 
 ```python
-# Deploy parallel agents for subtopics using Task tool
+# Deploy agents for subtopics using Task tool — THROTTLE to 2-3 concurrent per batch
+# (Rate-Limit & Reliability Guard in SKILL.md): liveness check + sequential fallback
 Task(subagent_type="Explore", prompt="Research current state of [subtopic1]...")
 Task(subagent_type="Explore", prompt="Research challenges in [subtopic2]...")
 Task(subagent_type="Explore", prompt="Find official documentation for [subtopic3]...")
 Task(subagent_type="Explore", prompt="Find academic papers on [subtopic4]...")
 Task(subagent_type="Explore", prompt="Verify key claims: [list claims]...")
 
-# Launch multiple agents in parallel by including multiple Task calls in a single response
+# Launch agents in throttled batches (2-3 Task calls per response, await each batch) —
+# NOT one large fan-out (it rate-limits and background agents can silently die)
 # Collect results when each agent completes
 ```
 
