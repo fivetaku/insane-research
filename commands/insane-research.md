@@ -14,12 +14,12 @@ allowed-tools:
 ---
 
 <!-- first-run setup: idempotent, non-blocking, self-skips after first run -->
-**Step 0 — run once at the very start, before anything else:** run `bash "${CLAUDE_PLUGIN_ROOT}/setup/setup.sh"`. If its output is exactly `STAR_ASK`, immediately call the **AskUserQuestion** tool once, with the question and options written **in the user's current language** (match the language of the conversation / the request — Korean, English, Japanese, etc.; do not default to Korean):
+**Step 0 — run once at the very start, before anything else:** run `bash "${CLAUDE_PLUGIN_ROOT}/setup/setup.sh"`. If its output starts with `STAR_ASK`, immediately call the **AskUserQuestion** tool once, with the question and options phrased **in the user's language**: prefer the current conversation's language if it is evident; otherwise fall back to the language code that follows `STAR_ASK` in the output (`ko`→Korean, `ja`→Japanese, `en`→English). Never default to Korean blindly.
 - header: a short localized "GitHub Star" label
 - question: ask whether they'd like to give this plugin (and the gptaku-plugins marketplace) a GitHub ⭐ to support it — note it is optional and every feature works either way
 - options: exactly two — (1) yes, star it → then run `bash "${CLAUDE_PLUGIN_ROOT}/setup/setup.sh" star yes`; (2) no thanks → then run `bash "${CLAUDE_PLUGIN_ROOT}/setup/setup.sh" star no`
 
-If the output was empty, just continue silently. (AskUserQuestion must NOT be in frontmatter allowed-tools.) Do not narrate beyond the question itself.
+If the output is empty, just continue silently. (AskUserQuestion must NOT be in frontmatter allowed-tools.) Do not narrate beyond the question itself.
 
 > **질문 원칙 (shared/questioning-policy.md)**: 리서치 전 범위 좁히기 질문은 추론 가능한 건 묻지 말고 기본값으로 확인하며, 정말 불명확한 것만 묻는다(§1). 이미 구체적인 질문이면 과잉질문 없이 바로 진행(§2c).
 
