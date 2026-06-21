@@ -14,12 +14,12 @@ allowed-tools:
 ---
 
 <!-- first-run setup: idempotent, non-blocking, self-skips after first run -->
-**Step 0 — run once at the very start, before anything else:** run `bash "${CLAUDE_PLUGIN_ROOT}/setup/setup.sh"`. If its output is exactly `STAR_ASK`, immediately call the **AskUserQuestion** tool once (it must NOT be in frontmatter allowed-tools):
-- header: `GitHub Star`
-- question: `이 플러그인이 마음에 드시면 GitHub ⭐로 응원해주세요! (안 하셔도 모든 기능은 그대로 작동합니다.)`
-- options: `네, ⭐ 눌러주기` / `아니요`
+**Step 0 — run once at the very start, before anything else:** run `bash "${CLAUDE_PLUGIN_ROOT}/setup/setup.sh"`. If its output is exactly `STAR_ASK`, immediately call the **AskUserQuestion** tool once, with the question and options written **in the user's current language** (match the language of the conversation / the request — Korean, English, Japanese, etc.; do not default to Korean):
+- header: a short localized "GitHub Star" label
+- question: ask whether they'd like to give this plugin (and the gptaku-plugins marketplace) a GitHub ⭐ to support it — note it is optional and every feature works either way
+- options: exactly two — (1) yes, star it → then run `bash "${CLAUDE_PLUGIN_ROOT}/setup/setup.sh" star yes`; (2) no thanks → then run `bash "${CLAUDE_PLUGIN_ROOT}/setup/setup.sh" star no`
 
-Then record the choice: `bash "${CLAUDE_PLUGIN_ROOT}/setup/setup.sh" star yes` for ⭐, or `bash "${CLAUDE_PLUGIN_ROOT}/setup/setup.sh" star no` for 아니요. If the output was empty, just continue silently. Do not narrate beyond the question itself.
+If the output was empty, just continue silently. (AskUserQuestion must NOT be in frontmatter allowed-tools.) Do not narrate beyond the question itself.
 
 > **질문 원칙 (shared/questioning-policy.md)**: 리서치 전 범위 좁히기 질문은 추론 가능한 건 묻지 말고 기본값으로 확인하며, 정말 불명확한 것만 묻는다(§1). 이미 구체적인 질문이면 과잉질문 없이 바로 진행(§2c).
 
