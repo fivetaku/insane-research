@@ -44,11 +44,15 @@ description: This skill should be used when a user requests deep research on any
 
 ---
 
-## CRITICAL REQUIREMENT
+## CRITICAL REQUIREMENT — 스코핑 우선순위 (단일 규칙)
 
-**CALL THE `AskUserQuestion` TOOL IMMEDIATELY.**
+입력을 보고 **아래 순서로 단 하나만** 적용한다(이전의 "무조건 즉시 질문"은 이 규칙으로 대체):
 
-DO NOT output text-based questions. INSTEAD, call the AskUserQuestion tool with JSON parameters.
+1. **유효한 structured JSON 쿼리** → 질문 없이 **Phase 1 건너뛰고 Phase 2로 바로 진행**(요구사항이 이미 정의됨).
+2. **자연어인데 필수 정보가 빠짐**(주제 외 초점/산출물/대상이 전부 불명확) → **AskUserQuestion 도구를 1회 호출**(텍스트 질문 금지, JSON 파라미터로). 여러 질문은 1-4개 그룹으로 묶는다.
+3. **이미 충분히 구체적** → 과잉질문 없이 합리적 기본값을 `state.json`에 기록하고 **바로 진행**(shared/questioning-policy.md §2c).
+
+> 질문이 필요할 때만 AskUserQuestion을 쓰고, 쓸 때는 반드시 텍스트가 아닌 도구 호출로 한다.
 
 ---
 
@@ -214,18 +218,23 @@ Before generating ANY search query, determine today's date from the system conte
 
 #### ⚠️ 핵심 주장 검증 레이어 (Claim Verification Layer) — 필수 산출 계약
 
-핵심 주장(수치·점유율·날짜·법령·인과 등 "틀리면 손해 큰" 주장)은 매끄러운 문장으로 단정하기 전에 **claim ledger**를 만든다. 각 핵심 주장 1건당 레코드:
+핵심 주장(수치·점유율·날짜·법령·인과 등 "틀리면 손해 큰" 주장)은 매끄러운 문장으로 단정하기 전에 **claim ledger**를 만든다. ledger는 **반드시 `artifacts/claim_ledger.jsonl`에 한 줄당 1개 레코드(JSONL)**로 저장한다 — 이 파일이 Phase 6의 `validate_ledger.py` 게이트 입력이다. 각 핵심 주장 1건당 레코드:
 
 ```json
 {
-  "claim": "주장 텍스트",
-  "status": "verified | refuted | unresolved",
-  "confidence": "high | medium | low",
-  "source_count": 2,
-  "primary_source": true,
-  "counter_search": "반증 검색 1회 결과 요약"
+  "claim_id": "clm_001",
+  "text": "주장 텍스트",
+  "risk": "high | normal",
+  "claim_type": "numeric | legal | causal | descriptive",
+  "source_ids": ["src_001", "src_003"],
+  "counter_search": "반증 검색 1회 결과 요약 (high-risk 필수)",
+  "counter_refuted": false,
+  "conflicting": false,
+  "primary_source": true
 }
 ```
+
+> **`status`/`confidence`는 직접 쓰지 않는다.** `validate_ledger.py`가 source_ids를 레지스트리와 대조해 독립 도메인 수·counter_search 유무·1차소스·등급을 보고 **status를 계산**한다. `risk:"high"`는 수치/점유율/날짜/법령/인과/재무 주장에 부여한다. `source_ids`는 `sources/sources.jsonl`의 `id`와 정확히 일치해야 한다(불일치 시 게이트가 하드 에러).
 
 **Abstention 강제 규칙 (불가침)** — 다음 중 하나라도 해당하면 `status=unresolved`("미확정")로 두고 **본문에서 단정 금지**. 반드시 "미확정 / 확인 필요"로 표기하고 `Unresolved` 섹션에 모은다:
 - 독립 출처 2개 미만 (`source_count < 2`)
@@ -244,20 +253,39 @@ Before generating ANY search query, determine today's date from the system conte
 - Include inline citations for EVERY claim
 - Add data visualizations when relevant
 
+#### ⚠️ Verified-only 합성 게이트 (불가침 — 데이터 흐름 락)
+
+**Phase 5에 들어가기 전에 `validate_ledger.py`를 돌려 `outputs/verified_claims.json`을 먼저 생성해야 한다**(아래 Phase 6 "검증 레이어 마감"의 명령). 그 다음:
+
+- **핵심 주장(수치·법령·인과·재무 등 high-risk)은 오직 `outputs/verified_claims.json`에 있는 항목만 본문에 단정형으로 쓴다.** raw 검색 결과(`sources.jsonl`·agent findings)를 직접 보고 핵심 수치를 단정하지 않는다.
+- `outputs/unresolved_claims.json`·`outputs/refuted_claims.json`의 주장은 **본문 단정 금지** — `Unresolved`/`Refuted` annex 섹션에만 노출한다.
+- 폭넓은 서사·맥락·가독성 문장은 그대로 자유롭게 쓰되, **검증 게이트는 핵심 주장에만** 적용한다.
+
+> 이유: 체커만이 `verified_claims.json`을 생산한다. 체커를 건너뛰면 합성할 입력이 비어 자기파괴적이므로, 검증을 우회할 수 없다(순수 프롬프트 권고가 아니라 데이터 의존성으로 강제).
+
 ### Phase 6: Quality Assurance
 - Check for hallucinations and errors
 - Verify all citations match content
 - Ensure completeness and clarity
 - Apply Chain-of-Verification techniques
 
-#### 핵심 주장 검증 레이어 마감 (필수)
-- Phase 4의 claim ledger를 마감한다: 모든 핵심 주장이 `verified / refuted / unresolved` 중 하나로 분류됐는지 확인.
-- **Chain-of-Verification은 권장이 아니라 계약**이다. ledger의 각 핵심 주장에 `counter_search` 결과가 비어 있으면 미완으로 보고 반증 검색을 수행한다.
-- **보고서 산출물에 다음 3개 필드/섹션을 노출**한다(없으면 미완):
-  - `Confidence` — 각 핵심 발견에 high/medium/low
-  - `Refuted` — 반증으로 폐기된 주장 목록(출처·이유)
-  - `Unresolved` — 미확정(2소스 미만/충돌/1차소스 미도달) 주장 목록 = "확인 필요"
-- 미확정 주장이 본문에 단정형으로 섞이지 않았는지 최종 점검한다.
+#### 핵심 주장 검증 레이어 마감 (필수 — 결정론적 게이트)
+
+**검증은 "권고"가 아니라 코드 게이트다.** `artifacts/claim_ledger.jsonl`과 `sources/sources.jsonl`이 준비되면 반드시 아래를 실행한다(Phase 5 합성 전에 1차 실행해 `verified_claims.json`을 만들고, Phase 7 직전에 재실행해 통과를 확정):
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/insane-research-main/scripts/validate_ledger.py" --session "RESEARCH/{topic}_{timestamp}"
+```
+
+종료 코드에 따라:
+- **exit 2 (하드 에러)** — 스키마 깨짐·미등록 source id·A-E 등급 모순. 데이터를 고치고 재실행. **절대 Phase 7로 진행 금지.**
+- **exit 1 (프로세스 위반)** — high-risk 주장에 `counter_search` 누락. 해당 주장에 반증 검색 1회를 수행해 ledger를 갱신하고 재실행.
+- **exit 0 (통과)** — `outputs/{verified,unresolved,refuted}_claims.json` 생성, `state.json.verification.signature` 기록 완료. 이제 Phase 7 진행 가능.
+
+마감 점검:
+- **`state.json`에 `verification.signature`가 있고 `verification.passed=true`인지** 확인한다(없으면 게이트 미실행 = 미완).
+- 보고서에 `Confidence` / `Refuted` / `Unresolved` 3개 섹션을 노출한다.
+- `unresolved`/`refuted` 주장이 본문에 단정형으로 섞이지 않았는지 최종 점검한다(verified-only 합성 게이트 위반 여부).
 
 #### Strict 모드 (옵트인 하이브리드 검증)
 
@@ -332,12 +360,14 @@ Every factual claim MUST include inline citation.
 
 ### Source Quality Ratings
 
+> **단일 진실 원천(SSOT) = `references/quality_rubric.md`.** 아래 표는 그 요약이며, 충돌 시 rubric을 따른다. 같은 도메인에 서로 다른 등급을 매기지 말 것(`validate_ledger.py`가 모순을 하드 에러로 잡는다).
+
 | Grade | Description | Examples |
 |-------|-------------|----------|
-| **A** | Peer-reviewed, systematic reviews, meta-analyses | Nature, Lancet, IEEE |
-| **B** | Official docs, clinical guidelines, cohort studies | FDA, W3C, WHO |
-| **C** | Expert opinion, case reports, industry reports | Gartner, conferences |
-| **D** | Preliminary research, preprints, white papers | arXiv, company blogs |
+| **A** | Peer-reviewed reviews/meta-analyses/RCTs, 공식 정부 간행물, 주요 기관 연구 | Nature, Lancet, FDA·WHO·NIH, MIT·OpenAI research |
+| **B** | Peer-reviewed 원저, 공식 표준, established-org 연구/백서, 공식 문서 | IEEE·W3C, **Gartner·McKinsey research**, product docs |
+| **C** | Expert opinion, 학회 발표, 신뢰도 높은 언론 분석, **유료 애널리스트 리포트** | NYT·WSJ 분석, conferences |
+| **D** | Preprint, 전문가 블로그, 보도자료, 트레이드 퍼블리케이션 | arXiv, company blogs |
 | **E** | Anecdotal, theoretical, speculative | Social media, forums |
 
 ### Red Flags (Unreliable Sources)
@@ -605,12 +635,13 @@ for phase_num in range(1, 8):
 State management scripts are available at:
 `${CLAUDE_PLUGIN_ROOT}/skills/insane-research-main/scripts/`
 
-| Script | Purpose |
-|--------|---------|
-| `orchestrator.py` | Research state machine controller - session creation, phase management, source tracking |
-| `pipelines.py` | Pipeline definitions - agent prompts, clarification templates, synthesis prompts |
+| Script | Purpose | 권위 |
+|--------|---------|------|
+| `validate_ledger.py` | **검증 게이트 (필수).** claim_ledger + sources를 읽어 status를 결정론적으로 계산, `verified_claims.json` 생산, `state.json`에 서명 기록 | **authoritative** — Phase 5/7 진입 게이트 |
+| `orchestrator.py` | 세션 폴더/`state.json` 생성·소스 append 등 **상태 헬퍼**. 단, 내부 phase 전이 로직은 권위가 없다(LLM이 SKILL.md 흐름으로 오케스트레이션) | helper (정적 자산) |
+| `pipelines.py` | agent prompt 템플릿·clarification·synthesis 프롬프트 **정적 자산**. `generate_research_plan()` 등 빈 스텁 함수는 실행 경로가 아니다 | helper (정적 자산) |
 
-These can be executed via Bash to initialize sessions or manage state programmatically.
+> **오케스트레이션은 프롬프트(이 SKILL.md)가, 검증은 코드(`validate_ledger.py`)가 담당한다.** `orchestrator.py`/`pipelines.py`의 state-machine·plan 스텁은 참고용 헬퍼일 뿐 실행 권위가 없으니, 검증/합성 게이트는 반드시 `validate_ledger.py`로 강제한다.
 
 ---
 

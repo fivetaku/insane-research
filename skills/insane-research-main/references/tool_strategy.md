@@ -393,27 +393,29 @@ mcp_context7_query_docs(libraryId="/facebook/react", query="useEffect")
 
 ---
 
-## Background Agents for Parallel Research
+## Agents for Parallel Research (기본 = foreground 배치)
 
 > ⚠️ **Rate-Limit & Reliability Guard** (SKILL.md): throttle to **2-3 concurrent** per batch, verify liveness after spawn (background agents can silently die with no notification → 무산출), and fall back to **main-thread sequential** when reliability matters. Do NOT launch a large `run_in_background=True` fan-out — it trips server-side rate-limits and the agents die.
 
+**기본 예시 — foreground(blocking) 2-3개 배치** (안정 기본값. 경고와 일치):
+
 ```python
+# 한 배치 = 2-3개. 이 배치가 끝난 뒤 다음 배치를 띄운다.
 Task(
     subagent_type="Explore",
-    description="Research subtopic",
+    description="Research subtopic A",
     prompt="Detailed research instructions...",
     mode="bypassPermissions",
-    run_in_background=True
 )
-
 Task(
     subagent_type="general-purpose",
-    description="Deep research on subtopic",
+    description="Research subtopic B",
     prompt="...",
     mode="bypassPermissions",
-    run_in_background=True
 )
 ```
+
+**(고급) background 변형은 task registry + liveness polling이 설정된 경우에만.** 그렇지 않으면 무산출 위험이 있으니 위 foreground 배치를 쓴다. background로 띄웠다면 산출물/트랜스크립트로 생존을 확인하고, 죽었거나 불확실하면 메인 스레드 순차로 폴백한다.
 
 ## File Operations
 
