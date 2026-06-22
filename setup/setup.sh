@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 # First-run setup for insane-research. Idempotent, non-blocking.
-#   setup.sh            -> env checks + update-notifier hook (once); prints "STAR_ASK <lang>"
-#                          on stdout iff the user has not yet decided about starring.
-#                          <lang> is a best-effort language code (ko/ja/en) detected from
-#                          past Claude session transcripts — a fallback when the current
-#                          conversation has no language signal yet.
-#   setup.sh star yes   -> star both repos (own + marketplace) and record the decision.
-#   setup.sh star no    -> record "declined"; star nothing.
-# The star question itself is asked by the command flow (AskUserQuestion is Claude-only,
-# it cannot be issued from bash) — this script never stars without an explicit decision.
+#   setup.sh            -> env checks + update-notifier hook (once). SILENT: no star prompt.
+#                          Used by skill / auto-trigger Step 0 (output is discarded).
+#   setup.sh ask        -> same first-run setup, then — iff no star decision is on record —
+#                          atomically records an "asked" marker AND prints "STAR_ASK <lang>".
+#                          Recording the marker HERE (not via a model follow-up) guarantees
+#                          the question is shown at most once per plugin, even if the caller
+#                          never reports the answer back. <lang> is a best-effort fallback
+#                          language code (ko/ja/en) detected from past Claude session
+#                          transcripts — used only when the live conversation has no signal.
+#   setup.sh star yes   -> record "yes" and star both repos (own + marketplace hub).
+#   setup.sh star no    -> record "no"; star nothing.
+# The star question itself is asked by the command flow (AskUserQuestion is Claude-only and
+# cannot be issued from bash); this script never stars without an explicit "star yes".
 set -uo pipefail
 
 PLUGIN="insane-research"
@@ -79,11 +83,15 @@ else: print("en")
 PY
 }
 
-# --- star: record the user's decision (and star if yes). Called after the question. ---
+# --- record the star decision (and star the repos on "yes") ---
+write_star() {  # $1 = decision (yes|no|asked)
+  ts=$(date +%s 2>/dev/null || echo 0)
+  printf '{"star_decision":"%s","plugin":"%s","ts":%s}\n' "$1" "$PLUGIN" "$ts" > "$STAR_MARKER"
+}
+
 if [ "${1:-}" = "star" ]; then
   DECISION="${2:-no}"
-  ts=$(date +%s 2>/dev/null || echo 0)
-  printf '{"star_decision":"%s","plugin":"%s","ts":%s}\n' "$DECISION" "$PLUGIN" "$ts" > "$STAR_MARKER"
+  write_star "$DECISION"
   if [ "$DECISION" = "yes" ] && command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
     for repo in "$OWN_REPO" "$HUB_REPO"; do
       gh api "user/starred/$repo" >/dev/null 2>&1 || gh api -X PUT "user/starred/$repo" >/dev/null 2>&1 || true
@@ -118,8 +126,12 @@ if [ ! -f "$SETUP_MARKER" ]; then
   printf '{"setup":true,"plugin":"%s","ts":%s}\n' "$PLUGIN" "$ts" > "$SETUP_MARKER"
 fi
 
-# --- star prompt signal: ask exactly once, until a decision is recorded ---
-# Emit "STAR_ASK <lang>" so the command has a fallback language when the current
-# conversation gives no signal yet (e.g. a bare first invocation).
-[ -f "$STAR_MARKER" ] || echo "STAR_ASK $(detect_lang)"
+# --- ask mode: emit the star prompt EXACTLY ONCE, recording it deterministically ---
+# Only the command flow passes "ask". Bare / silent skill invocations never reach here,
+# so they neither prompt nor record — the prompt is shown at most once, by a command,
+# and the "asked" marker is written by bash regardless of any model follow-up.
+if [ "${1:-}" = "ask" ] && [ ! -f "$STAR_MARKER" ]; then
+  write_star "asked"
+  echo "STAR_ASK $(detect_lang)"
+fi
 exit 0
