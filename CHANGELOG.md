@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.6.0] - 2026-06-22
+
+### Added
+- **`scripts/eval_report.py` — 결정론적 평가 채점기**(측정 도구, LLM judge 없음). 리서치 세션 산출물을 받아 검증 게이트의 실제 효과를 4지표로 계측:
+  - `leak_rate`(unresolved/refuted 주장이 본문에 샜는가 — verified-only 게이트 효과의 직접 지표), `citation_resolution_rate`(깨진 인용), `orphan_source_rate`(미인용 소스), `verified_coverage_rate`(allowlist가 실제 소비됐는가).
+  - leak/coverage 판별은 content char 6-gram + verified 맥락 제외로 버전번호 등 공유 토큰 오탐 방지. verdict FAIL(leak 또는 dangling citation 존재) 시 exit 1.
+  - good/bad 픽스처로 판별력 검증(GOOD=PASS leak0, BAD=FAIL leak2+dangling+orphan).
+- SKILL.md Phase 7에 마감 자기검증(`eval_report.py`) 단계 추가, Scripts 표에 authoritative 등록.
+
+### Why
+"개선이 진짜 효과 있나"를 측정할 수단이 없었음(GPT 리뷰도 평가 harness 부재 지적). 이제 검증 게이트 효과를 숫자로 확인하고, 이후 개선마다 게이트 on/off A/B·회귀 추적 가능.
+
 ## 2.5.1 — 2026-06-21
 
 - The GitHub-star prompt is shown in the user's current language; on a fresh session with no language signal yet, it falls back to the language detected from your recent Claude sessions (else English).
