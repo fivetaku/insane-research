@@ -8,7 +8,7 @@
   },
   "homepage": "https://github.com/fivetaku/insane-research",
   "repository": "https://github.com/fivetaku/insane-research",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "keywords": [
     "insane-research",
     "multi-agent",
