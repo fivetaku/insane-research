@@ -264,6 +264,7 @@ Before generating ANY search query, determine today's date from the system conte
 - 1차 소스 미도달 (high-risk인데 `PRIMARY_SOURCE_TYPES` type 소스 없음)
 - 표면(type) 다양성 미충족 (high-risk인데 소스 type 1종)
 - 원문 인용 미충족 (ledger_schema 2 세션의 high-risk 주장에 evidence가 없거나, 저장된 원문 스냅샷에서 대조 통과한 구절이 0개 — 스냅샷을 못 받은 출처의 구절은 대조 불가로 친다)
+- 수치 미포함 (`claim_type: "numeric"`인데 대조 통과 구절 어디에도 주장 문장의 두 자리 이상 숫자가 없음 — numeric 주장은 값이 든 구절을 반드시 하나 포함한다)
 
 **경량 red-team (필수)** — 각 핵심 주장마다 **반증 counter-search 1회**를 수행한다. 신뢰할 만한 반박이 나오면 `status=refuted`로 두고 `Refuted` 섹션으로 보낸다(본문 단정 금지).
 

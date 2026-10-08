@@ -185,7 +185,7 @@ def _norm_text(s):
 def check_evidence(claim, sources_by_id, session_dir, cache):
     """7c~7e: 고위험 주장의 evidence 구절을 저장된 원문 스냅샷과 대조.
     반환: (passed, failed, reasons). cache는 source_id → 정규화된 본문(또는 실패 사유)."""
-    passed, failed, reasons = 0, 0, []
+    passed, failed, reasons, matched = 0, 0, [], []
     for e in claim.get("evidence") or []:
         sid = e.get("source_id")
         quote = (e.get("quote") or "").strip()
@@ -212,10 +212,23 @@ def check_evidence(claim, sources_by_id, session_dir, cache):
             reasons.append(why)
         elif _norm_text(quote) in body:
             passed += 1
+            matched.append(_norm_text(quote))
         else:
             failed += 1
             reasons.append(f"{sid}: 구절이 원문에 없음 — '{quote[:40]}…'")
-    return passed, failed, reasons
+    return passed, failed, reasons, matched
+
+
+def numeric_value_missing(claim, matched_quotes):
+    """7f: numeric 주장은 대조 통과 구절 중 하나에 주장 문장의 값(두 자리 이상 숫자)이 있어야 한다.
+    숫자 든 구절은 틀리고 값 없는 일반 구절만 통과해 verified가 되던 빈틈을 막는다(E2E 실측).
+    날짜·버전은 소제목에만 있는 정상 사례가 있어 numeric 유형에만 적용한다."""
+    if (claim.get("claim_type") or "").strip().lower() != "numeric":
+        return False
+    values = set(re.findall(r"\d{2,}", unicodedata.normalize("NFKC", claim.get("text") or "")))
+    if not values:
+        return False
+    return not any(v in q for q in matched_quotes for v in values)
 
 
 def _ledger_schema(state_path):
@@ -418,11 +431,15 @@ def validate(ledger_path, sources_path, out_dir, state_path, max_unresolved_rati
                 status, reason = "unresolved", "high-risk인데 evidence 없음 (원문 구절 미제출)"  # 7a
                 evidence_check = {"passed": 0, "failed": 0, "reasons": []}
             else:
-                ok, bad, why = check_evidence(claim, sources_by_id, session_dir, snapshot_cache)
+                ok, bad, why, matched = check_evidence(claim, sources_by_id, session_dir, snapshot_cache)
                 evidence_check = {"passed": ok, "failed": bad, "reasons": why}
                 if ok == 0:  # 7e
                     status = "unresolved"
                     reason = "high-risk evidence 대조 통과 0건 — " + "; ".join(why[:3])
+                elif numeric_value_missing(claim, matched):  # 7f
+                    status = "unresolved"
+                    reason = "numeric 주장의 값이 대조 통과 구절에 없음 — 값이 든 원문 구절 필요"
+                    evidence_check["reasons"] = why + ["주장 값(숫자)이 통과 구절에 없음"]
         record = dict(claim)
         if evidence_check is not None:
             record["evidence_check"] = evidence_check

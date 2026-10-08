@@ -214,3 +214,50 @@ def test_normal_risk_claim_not_required(tmp_path):
     s = build_session(tmp_path, [({"risk": "normal"}, SNAP, "ok")])
     _, st = run_gate(s)
     assert _status(st, 1) == "verified"
+
+
+# ── 7f: numeric 주장은 통과 구절 중 하나에 주장의 값이 있어야 한다 ───────────
+# E2E(EU AI Act) 실측: 숫자 든 구절만 틀리고 숫자 없는 일반 구절이 통과해 verified로 남았다.
+
+FLOP_SNAP = ("the AI Act lays down a threshold of 10^25 floating-point operations (FLOP) used for training. "
+             "the cumulative amount of computation used for its training measured in floating point operations")
+FLOP_CLAIM = {"text": "시스템적 위험 GPAI 추정 기준은 학습 누적 연산량 10^25 FLOP 초과다", "claim_type": "numeric"}
+GENERIC_Q = "the cumulative amount of computation used for its training measured in floating point operations"
+
+
+def test_7f_numeric_value_missing_from_passing_quotes(tmp_path):
+    s = build_session(tmp_path, [(dict(FLOP_CLAIM, evidence=[
+        {"quote": "the AI Act lays down a threshold of 10^24 floating-point operations"},  # 변조
+        {"quote": GENERIC_Q},  # 원문에 있지만 값이 없음
+    ]), FLOP_SNAP, "ok")])
+    _, st = run_gate(s)
+    assert _status(st, 1) == "unresolved"
+    assert "값" in st["clm_001"]["status_reason"]
+
+
+def test_7f_numeric_value_present_passes(tmp_path):
+    s = build_session(tmp_path, [(dict(FLOP_CLAIM, evidence=[
+        {"quote": "the AI Act lays down a threshold of 10^25 floating-point operations"},
+        {"quote": GENERIC_Q},
+    ]), FLOP_SNAP, "ok")])
+    _, st = run_gate(s)
+    assert _status(st, 1) == "verified"
+
+
+def test_7f_not_applied_to_non_numeric_claims(tmp_path):
+    """버전·날짜가 소제목에만 있는 정상 사례(SketchUp 2026.2)가 떨어지지 않게 numeric에만 적용."""
+    snap = "## SketchUp 2026.2\n* Made Sketchup.load and Sketchup.require raise a `LoadError` when the file cannot be found"
+    claim = {"text": "SketchUp 2026.2에서 Sketchup.load가 LoadError를 raise한다", "claim_type": "descriptive",
+             "evidence": [{"quote": "Made Sketchup.load and Sketchup.require raise a LoadError when the file cannot be found"}]}
+    s = build_session(tmp_path, [(claim, snap, "ok")])
+    _, st = run_gate(s)
+    assert _status(st, 1) == "verified"
+
+
+def test_7f_single_digit_only_claim_not_enforced(tmp_path):
+    claim = {"text": "FLUX Union Pro는 7개 모드를 지원한다", "claim_type": "numeric",
+             "evidence": [{"quote": "canny (0), tile (1), depth (2), blur (3), pose (4)"}]}
+    snap = "Supported control modes: canny (0), tile (1), depth (2), blur (3), pose (4), gray (5), low quality (6)."
+    s = build_session(tmp_path, [(claim, snap, "ok")])
+    _, st = run_gate(s)
+    assert _status(st, 1) == "verified"
