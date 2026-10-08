@@ -243,9 +243,16 @@ Before generating ANY search query, determine today's date from the system conte
   },
   "counter_refuted": false,
   "conflicting": false,
-  "valid_at": "2024-06-15"
+  "valid_at": "2024-06-15",
+  "evidence": [
+    {"source_id": "src_001", "quote": "출처 원문 그대로의 구절 (20~300자, 번역 금지)", "locator": "## 소제목 (선택)"}
+  ]
 }
 ```
+
+> **`evidence` — 원문 인용 (v2.10.0, high-risk 필수)**: 주장을 뒷받침하는 **출처 원문 구절을 그대로** 복사한다. 요약·의역·번역 금지(한국어 주장이어도 영어 출처면 영어 원문). 주장의 수치·버전·경로·고유명사가 들어 있는 구절을 고른다. `source_id`는 그 주장의 `source_ids` 중 하나여야 한다(아니면 하드 에러). 게이트는 이 구절이 **저장된 원문 스냅샷**(`sources/snapshots/`)에 실제로 있는지 문자열로 대조한다 — 공백·따옴표·대소문자·마크다운 기호만 정규화하고 비슷한 문장은 인정하지 않는다. 팬아웃 모드에서는 에이전트가 `source_url`로 쓰고 `merge_agent_returns.py`가 `source_id`로 바꾼다.
+>
+> **새 세션은 `state.json`에 `"ledger_schema": 2`를 기록한다(Phase 1 초기화 시).** 이 값이 있는 세션에만 evidence 규칙이 적용되고, 없는 기존 세션은 이전 규칙으로 검증된다.
 
 > **`status`/`confidence`/`primary_source`는 직접 쓰지 않는다.** `validate_ledger.py`가 source_ids를 레지스트리와 대조해 **status를 계산**하고, `primary_source`는 소스의 `type`(standards_document/official_docs/government/filing/peer_reviewed 등 `PRIMARY_SOURCE_TYPES`)에서 **파생 계산**한다 — 자기신고는 무시된다. `risk:"high"`는 수치/점유율/날짜/법령/인과/재무 주장에 부여한다. `source_ids`는 `sources/sources.jsonl`의 `id`와 정확히 일치해야 하고, `counter_search.urls`의 URL도 레지스트리에 등록돼 있어야 한다(불일치 시 게이트가 하드 에러). **counter_search는 자유 문자열이 아니라 구조체다** — 문자열로 쓰면 감사 불가로 절차 위반(exit 1) 처리된다.
 >
@@ -256,6 +263,7 @@ Before generating ANY search query, determine today's date from the system conte
 - 출처 간 충돌이 해소되지 않음
 - 1차 소스 미도달 (high-risk인데 `PRIMARY_SOURCE_TYPES` type 소스 없음)
 - 표면(type) 다양성 미충족 (high-risk인데 소스 type 1종)
+- 원문 인용 미충족 (ledger_schema 2 세션의 high-risk 주장에 evidence가 없거나, 저장된 원문 스냅샷에서 대조 통과한 구절이 0개 — 스냅샷을 못 받은 출처의 구절은 대조 불가로 친다)
 
 **경량 red-team (필수)** — 각 핵심 주장마다 **반증 counter-search 1회**를 수행한다. 신뢰할 만한 반박이 나오면 `status=refuted`로 두고 `Refuted` 섹션으로 보낸다(본문 단정 금지).
 
@@ -297,11 +305,17 @@ Before generating ANY search query, determine today's date from the system conte
 
 #### 핵심 주장 검증 레이어 마감 (필수 — 결정론적 게이트)
 
-**검증은 "권고"가 아니라 코드 게이트다.** `artifacts/claim_ledger.jsonl`과 `sources/sources.jsonl`이 준비되면 반드시 아래를 실행한다(Phase 5 합성 전에 1차 실행해 `verified_claims.json`을 만들고, Phase 7 직전에 재실행해 통과를 확정):
+**검증은 "권고"가 아니라 코드 게이트다.** `artifacts/claim_ledger.jsonl`과 `sources/sources.jsonl`이 준비되면 반드시 **취합 → 원문 스냅샷 → 게이트** 순서로 실행한다(Phase 5 합성 전에 1차 실행해 `verified_claims.json`을 만들고, Phase 7 직전에 재실행해 통과를 확정):
 
 ```bash
+# 1) 원문 스냅샷 — high-risk 주장이 인용한 출처만 insane-search 엔진으로 받아 sources/snapshots/에 저장
+#    (WebFetch 결과는 모델 요약이라 대조에 못 쓴다. 이미 ok인 출처는 재수집하지 않는다.)
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/insane-research-main/scripts/snapshot_sources.py" --session "RESEARCH/{topic}_{timestamp}"
+# 2) 게이트
 python3 "${CLAUDE_PLUGIN_ROOT}/skills/insane-research-main/scripts/validate_ledger.py" --session "RESEARCH/{topic}_{timestamp}"
 ```
+
+> 스냅샷 스크립트는 insane-search 엔진을 플러그인 캐시에서 찾는다(`--engine-dir` 또는 `INSANE_SEARCH_ENGINE_DIR`로 지정 가능). 엔진을 못 찾으면 exit 2 — insane-search가 없으면 ledger_schema 2 세션의 high-risk 주장은 전부 unresolved가 되므로, 이때는 그 사실을 보고서 한계에 적는다.
 
 종료 코드에 따라:
 - **exit 2 (하드 에러)** — 스키마 깨짐·미등록 source id·A-E 등급 모순. 데이터를 고치고 재실행. **절대 Phase 7로 진행 금지.**
@@ -479,6 +493,7 @@ For complete source quality assessment rubric:
 ```json
 {
   "session_id": "Topic_Name_20260224_143000",
+  "ledger_schema": 2,
   "topic": "Research Topic",
   "created_at": "2026-02-24T14:30:00Z",
   "updated_at": "2026-02-24T15:45:00Z",
@@ -514,7 +529,7 @@ For complete source quality assessment rubric:
 
 ### sources.jsonl Schema (one JSON per line)
 ```json
-{"id": "src_001", "url": "https://...", "title": "Article Title", "author": "Author", "date": "2024-06-15", "domain": "nature.com", "type": "academic", "quality_rating": "A", "snippet": "relevant excerpt...", "claims": ["claim1"], "verified": true, "observed_at": "2026-07-22T14:00:00Z", "valid_at": "2024-06-15", "access": {"layer": "insane-search | webfetch | builtin-fallback", "verdict": "strong_ok | weak_ok", "profile_used": "cloudflare_turnstile", "extraction_source": "raw | pdf | json_ld", "phase": "phase0 | grid | fallback"}}
+{"id": "src_001", "url": "https://...", "title": "Article Title", "author": "Author", "date": "2024-06-15", "domain": "nature.com", "type": "academic", "quality_rating": "A", "snippet": "relevant excerpt...", "claims": ["claim1"], "verified": true, "observed_at": "2026-07-22T14:00:00Z", "valid_at": "2024-06-15", "access": {"layer": "insane-search | webfetch | builtin-fallback", "verdict": "strong_ok | weak_ok", "profile_used": "cloudflare_turnstile", "extraction_source": "raw | pdf | json_ld", "phase": "phase0 | grid | fallback"}, "snapshot": {"path": "sources/snapshots/src_001.txt", "sha256": "…", "chars": 18234, "status": "ok | blocked | too_large | error", "fetched_at": "2026-10-08T08:00:00Z", "via": "raw"}}
 ```
 
 > `access`는 접근 레이어 메타 — insane-search 위임 성공 시 엔진 결과(`verdict`/`profile_used`/`extraction_source`/trace phase)에서 채우고, WebFetch 직행 성공이면 `{"layer": "webfetch"}`만 기록한다. Phase 4 신뢰도 평가와 Phase 6 게이트가 접근 품질을 근거로 쓸 수 있다.
@@ -697,6 +712,7 @@ State management scripts are available at:
 
 | Script | Purpose | 권위 |
 |--------|---------|------|
+| `snapshot_sources.py` | **원문 스냅샷 (v2.10.0, 게이트 직전 필수).** high-risk 주장이 인용한 출처를 insane-search 엔진으로 받아 `sources/snapshots/`에 저장하고 sources.jsonl에 `snapshot` 기록. 게이트의 evidence 대조 입력 | authoritative 입력 생산 |
 | `validate_ledger.py` | **검증 게이트 (필수).** claim_ledger + sources를 읽어 status를 결정론적으로 계산, `verified_claims.json` 생산, `state.json`에 서명 기록. **실패 시 verified를 삭제하고 `gate_failed.json` 기록(합성 입력 소멸)** | **authoritative** — Phase 5/7 진입 게이트 |
 | `verify_report.py` | **본문 대조 게이트 (필수).** 보고서가 verified 주장만 단정 인용했는지 검사 — 미검증 인용·유령 claim_id·인용 커버리지 | **authoritative** — Phase 7 진입 게이트 |
 | `eval_report.py` | **평가 채점기 (필수).** 본문이 검증 계약을 지켰는지 측정 — leak/citation-resolution/orphan/coverage 4지표, `eval_report.json` 생산 | **authoritative** — Phase 7 마감 자기검증 |

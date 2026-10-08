@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.10.0] - 2026-10-08
+
+### Added — 원문 인용 게이트 (고위험 주장은 원문 구절 대조 필수)
+
+- **배경**: 과거 리서치에서 verified로 통과한 고위험 주장 8건 중 4건은 수치·경로·속성이 인용 출처에 없었다(IP-Adapter CLIP-I 0.828, Stability `v2alpha`→`v2beta` 오기 등). 게이트는 출처 개수·등급·유형만 보고 주장이 출처에 실제로 있는지는 보지 않았다.
+- 주장 레코드에 `evidence[]`({source_id, quote, locator?}) 추가. 팬아웃 에이전트는 `source_url`로 쓰고 `merge_agent_returns.py`가 `src_xxx`로 바꾼다.
+- **`scripts/snapshot_sources.py` 신규** — high-risk 주장이 인용한 출처만 insane-search 엔진으로 받아 `sources/snapshots/`에 저장, sources.jsonl에 `snapshot`(path·sha256·status) 기록. WebFetch는 모델 요약이라 쓰지 않는다.
+- **`validate_ledger.py` 7a~7e**: high-risk인데 evidence 없음·구절이 원문에 없음·스냅샷 없음·sha256 불일치·길이(20~300자) 위반이면 unresolved. evidence의 source_id가 주장의 source_ids 밖이면 하드 에러. 대조는 NFKC·따옴표·마크다운 기호·공백·대소문자만 정규화한 부분 문자열 일치(퍼지 금지).
+- `state.json`의 `ledger_schema: 2` 세션에만 적용(기존 세션은 이전 규칙). `orchestrator.py`의 새 세션은 2로 시작.
+- 검증: `tests/test_evidence_gate.py` 12건(지난 표본 8건 재현 4 verified/4 unresolved, 날조·차단·변조·구스키마 면제), `tests/test_snapshot_sources.py` 4건, 실제 리서치 에이전트 2개 E2E(실엔진 스냅샷 10/10, high-risk 7건 구절 대조 통과, 구절 변조 시 unresolved).
+
 ## [2.9.0] - 2026-08-19
 
 ### Fixed — 데이터 흐름 락 실효화 (게이트 실패가 실제로 합성을 막게)

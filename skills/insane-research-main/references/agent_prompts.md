@@ -30,6 +30,13 @@ For EVERY factual claim, provide:
 - Publication date
 - Confidence rating (High/Medium/Low)
 
+For high-risk claims (numbers, dates, versions, paths, legal, causal, financial),
+return `evidence`: a list of {source_url, quote, locator?}. The quote MUST be copied
+verbatim from the source page (20-300 chars) — no paraphrase, no translation, keep the
+source language. Pick the passage that contains the exact value in the claim. The gate
+string-matches each quote against a stored snapshot of the page; a quote that is not
+in the page makes the claim unresolved.
+
 Return structured findings with all source URLs.
 
 응답 끝에 ## EXPAND 섹션 필수:

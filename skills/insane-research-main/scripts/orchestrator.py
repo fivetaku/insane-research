@@ -62,6 +62,7 @@ class ResearchState:
 
         self.state = {
             "session_id": session_id,
+            "ledger_schema": 2,  # v2.10.0 원문 인용 게이트 적용 (validate_ledger 7a~7e)
             "topic": topic,
             "created_at": datetime.now().isoformat(),
             "updated_at": datetime.now().isoformat(),

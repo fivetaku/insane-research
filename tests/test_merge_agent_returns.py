@@ -125,3 +125,45 @@ def test_unknown_claim_url_warns(tmp_path):
     r = run_merge(s)
     assert r.returncode == 0
     assert "미등록 URL" in r.stderr
+
+
+# ── evidence 승계 (v2.10.0) ──────────────────────────────────────────────
+
+def _claim_with_evidence(evidence):
+    return dict(RET_A["claims"][0], evidence=evidence)
+
+
+def test_evidence_url_remapped_to_source_id(tmp_path):
+    """에이전트는 전역 id를 모르므로 source_url로 쓰고, 취합기가 src_xxx로 바꾼다 (슬래시·대소문자 정규화 포함)."""
+    a = dict(RET_A, claims=[_claim_with_evidence([
+        {"source_url": "https://B.example.org/y/", "quote": "벤치마크에서 처리량이 30% 늘었다고 보고했다", "locator": "## Results"},
+        {"source_url": "https://a.example.com/x", "quote": "Throughput increased by 30 percent in v2"},
+    ])])
+    s = make_session(tmp_path, [a, RET_B])
+    r = run_merge(s)
+    assert r.returncode == 0, r.stderr
+    claims = [json.loads(l) for l in (s / "artifacts" / "claim_ledger.jsonl").read_text().splitlines()]
+    ev = claims[0]["evidence"]
+    assert [e["source_id"] for e in ev] == ["src_002", "src_001"]
+    assert ev[0]["quote"].startswith("벤치마크") and ev[0]["locator"] == "## Results"
+    assert "locator" not in ev[1]  # 선택 필드는 없으면 생략
+
+
+def test_evidence_unknown_url_dropped_with_warning(tmp_path):
+    a = dict(RET_A, claims=[_claim_with_evidence([
+        {"source_url": "https://nowhere.example.com/", "quote": "레지스트리에 없는 출처의 구절은 버려야 한다"},
+    ])])
+    s = make_session(tmp_path, [a])
+    r = run_merge(s)
+    assert r.returncode == 0
+    assert "evidence" in r.stderr and "미등록" in r.stderr
+    claims = [json.loads(l) for l in (s / "artifacts" / "claim_ledger.jsonl").read_text().splitlines()]
+    assert claims[0]["evidence"] == []
+
+
+def test_no_evidence_field_stays_absent(tmp_path):
+    """evidence를 안 쓴 반환(구 계약)은 ledger에도 evidence 키를 만들지 않는다 — 구 세션 호환."""
+    s = make_session(tmp_path, [RET_A])
+    assert run_merge(s).returncode == 0
+    claims = [json.loads(l) for l in (s / "artifacts" / "claim_ledger.jsonl").read_text().splitlines()]
+    assert "evidence" not in claims[0]

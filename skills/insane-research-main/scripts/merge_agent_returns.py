@@ -82,6 +82,24 @@ def merge(returns, observed_at):
                 warnings.append(
                     f"{axis}: claim '{(c.get('text') or '')[:30]}…' 미등록 URL {len(missing)}건 (해당 에이전트 sources에 없음)"
                 )
+            # evidence: 에이전트는 전역 id를 모르므로 source_url로 쓰고 여기서 src_xxx로 바꾼다.
+            # 레지스트리에 없는 URL의 구절은 대조할 원문이 없으므로 버리고 경고한다.
+            evidence = None
+            if "evidence" in c:
+                evidence = []
+                for e in c.get("evidence") or []:
+                    if not isinstance(e, dict):
+                        continue
+                    eid = url_to_id.get(_norm_url(e.get("source_url")))
+                    if not eid:
+                        warnings.append(
+                            f"{axis}: claim '{(c.get('text') or '')[:30]}…' evidence 미등록 URL — 버림"
+                        )
+                        continue
+                    item = {"source_id": eid, "quote": e.get("quote") or ""}
+                    if e.get("locator"):
+                        item["locator"] = e["locator"]
+                    evidence.append(item)
             claims_out.append({
                 "claim_id": f"clm_{len(claims_out) + 1:03d}",
                 "text": c.get("text") or "",
@@ -94,6 +112,7 @@ def merge(returns, observed_at):
                 "primary_source": bool(c.get("primary_source")),
                 "valid_at": c.get("valid_at") or "",
                 **({"execution_proof": c["execution_proof"]} if c.get("execution_proof") else {}),
+                **({"evidence": evidence} if evidence is not None else {}),
             })
 
         for l in r.get("expand_leads") or []:
