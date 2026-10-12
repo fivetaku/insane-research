@@ -1,0 +1,10 @@
+name: ci
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  plugin:
+    uses: fivetaku/.github/.github/workflows/plugin-check.yml@main
+    with:
+      test-command: python3 -m pytest -q tests
