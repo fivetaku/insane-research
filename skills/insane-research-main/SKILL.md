@@ -1,6 +1,6 @@
 ---
 name: insane-research-main
-description: This skill should be used when a user requests deep research on any topic. Example queries include "/insane-research", "deep research on", "리서치해줘", "딥리서치", "심층 연구", "[주제]에 대해 리서치해줘".
+description: Use when the user wants a topic researched, investigated, compared, or surveyed from web sources — before calling WebSearch, even for a quick first pass. Example queries include "/insane-research", "deep research on", "리서치해줘", "리서치부터 해보자", "조사해줘", "알아봐줘", "비교 분석", "동향", "시장 규모", "최근 사례 정리", "[주제]에 대해 리서치해줘".
 ---
 
 <!-- first-run setup: idempotent, non-blocking, self-skips after first run -->
