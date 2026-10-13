@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.10.1] - 2026-10-13
+- **gptaku-core 라우팅 적용.** `gptaku-core`를 의존성으로 선언하고 `routing.json`을 추가해, 이 플러그인 스킬에 맞는 요청이 오면 직접 처리하거나 기본 도구를 쓰기 전에 이 스킬을 먼저 쓰게 했다. 기존 사용자는 업데이트 후 `/reload-plugins`를 실행하거나 플러그인을 다시 설치해야 gptaku-core가 함께 설치된다. 끄기: `GPTAKU_ROUTER=off`.
+- 스킬 설명에서 "단순 검색은 WebSearch로" 같은 양보 문구를 빼고, WebSearch·WebFetch보다 먼저 쓰는 스킬로 다시 썼다.
+
 ## [2.10.0] - 2026-10-08
 
 ### Added — 원문 인용 게이트 (고위험 주장은 원문 구절 대조 필수)
