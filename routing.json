@@ -81,6 +81,19 @@
         "function",
         "bug",
         "test"
+      ],
+      "aliases": [
+        "insane-research:insane-research",
+        "insane-research"
+      ],
+      "exclude_override": [
+        "웹",
+        "출처",
+        "최신",
+        "최근",
+        "요즘",
+        "시장",
+        "업계"
       ]
     }
   ]
