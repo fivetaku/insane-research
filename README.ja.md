@@ -98,6 +98,7 @@ Phase 7: Output & Packaging
 | `/insane-research resume [session_id]` | 前回のセッションを再開 |
 | `/insane-research status` | すべてのセッションの進捗を表示 |
 | `/insane-research query` | 構造化クエリビルダーを起動 |
+| `/insane-research refs <テーマ>` | ライトモード: 参考画像だけを収集（候補ページ数件＋大きな画像、レポートなし） |
 | `/insane-research` | インタラクティブメニューを開く |
 
 ### 自然言語トリガー

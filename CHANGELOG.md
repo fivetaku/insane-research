@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.11.0] - 2026-10-20
+- **라이트 모드 `insane-research-refs` 추가.** 주제를 받아 지금 게시 중인 페이지 몇 개를 찾고, 그 페이지의 큰 이미지(폭 500 이상 또는 높이 1500 이상)만 내려받아 `candidates.md` 표와 `manifest.json`(원본 URL·크기·SHA-256)으로 남긴다. 보고서·claim ledger·검증 게이트·서브에이전트를 돌리지 않아 수 분 안에 끝난다. sangse 같은 다른 스킬이 레퍼런스 수집을 맡길 때 쓴다. `/insane-research refs <주제>`로도 부른다.
+- 페이지는 insane-search 엔진으로 받는다(차단 우회는 그쪽 정본). 엔진이 없으면 단순 요청만 하고 막힌 페이지는 `blocked`로 기록한다 — 우회 기법을 새로 복사하지 않았다.
+- 테스트: `tests/test_collect_ref_images.py` 6건(가짜 엔진·다운로더, 네트워크 없음).
+
 ## [2.10.2] - 2026-10-14
 - **gptaku-core 라우팅 조정.** 실제 대화에서 잘못 지목된 사례에 맞춰 `routing.json`의 키워드·제외어를 고쳤다. gptaku-core 0.1.1과 함께 적용된다.
 

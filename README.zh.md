@@ -98,6 +98,7 @@ Phase 7: Output & Packaging
 | `/insane-research resume [session_id]` | 恢复之前的会话 |
 | `/insane-research status` | 查看所有会话进度 |
 | `/insane-research query` | 启动结构化查询构建器 |
+| `/insane-research refs <主题>` | 轻量模式：只收集参考图片（少量候选页面＋大图，不生成报告） |
 | `/insane-research` | 打开交互式菜单 |
 
 ### 自然语言触发

@@ -98,6 +98,7 @@ Phase 7: 산출물 패키징 (Output & Packaging)
 | `/insane-research resume [session_id]` | 이전 세션 이어하기 |
 | `/insane-research status` | 모든 세션 진행 상황 확인 |
 | `/insane-research query` | 구조화된 쿼리 빌더 실행 |
+| `/insane-research refs <주제>` | 라이트 모드: 레퍼런스 이미지만 수집 (후보 페이지 몇 개 + 큰 이미지, 보고서 없음) |
 | `/insane-research` | 인터랙티브 메뉴 열기 |
 
 ### 자연어 트리거

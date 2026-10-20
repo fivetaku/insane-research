@@ -98,6 +98,7 @@ Phase 7: Output & Packaging
 | `/insane-research resume [session_id]` | Reanuda una sesión anterior |
 | `/insane-research status` | Muestra el progreso de todas las sesiones |
 | `/insane-research query` | Lanza el constructor de consultas estructuradas |
+| `/insane-research refs <tema>` | Modo ligero: solo recopila imágenes de referencia (algunas páginas + sus imágenes grandes, sin informe) |
 | `/insane-research` | Abre el menú interactivo |
 
 ### Disparadores en lenguaje natural

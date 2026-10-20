@@ -98,6 +98,7 @@ Phase 7: Output & Packaging
 | `/insane-research resume [session_id]` | Resume a previous session |
 | `/insane-research status` | View all session progress |
 | `/insane-research query` | Launch the structured query builder |
+| `/insane-research refs <topic>` | Light mode: collect reference images only (a few live pages + their large images, no report) |
 | `/insane-research` | Open the interactive menu |
 
 ### Natural language triggers

@@ -1,7 +1,7 @@
 ---
 name: insane-research
 description: "AI 딥리서치 -- 멀티에이전트 기반 종합 리서치 시스템"
-argument-hint: "[topic|resume|status|query]"
+argument-hint: "[topic|resume|status|query|refs <topic>]"
 allowed-tools:
   - Agent
   - WebSearch
@@ -34,6 +34,7 @@ Inspect `$ARGUMENTS` to determine the action:
 | `resume [session_id]` | Resume a previous research session | insane-research-main |
 | `status` | List all research sessions and their progress | insane-research-main |
 | `query` | Launch interactive query builder | insane-research-query |
+| `refs <topic>` | Light mode — collect reference images only (no report) | insane-research-refs |
 | `[any other text]` | Start new research on the given topic | insane-research-main |
 | (no argument) | Show interactive menu via AskUserQuestion | See below |
 
@@ -72,3 +73,4 @@ Once the action is determined, follow the corresponding skill's execution flow.
 Skill content is located at:
 - `${CLAUDE_PLUGIN_ROOT}/skills/insane-research-main/SKILL.md` — Main research pipeline
 - `${CLAUDE_PLUGIN_ROOT}/skills/insane-research-query/SKILL.md` — Interactive query builder
+- `${CLAUDE_PLUGIN_ROOT}/skills/insane-research-refs/SKILL.md` — Reference image collection (light mode)
