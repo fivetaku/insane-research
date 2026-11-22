@@ -466,21 +466,20 @@ mcp_context7_query_docs(libraryId="/facebook/react", query="useEffect")
 
 > ⚠️ **Rate-Limit & Reliability Guard** (SKILL.md): run **8-10 concurrent** per batch (2026-11-03: 14-day 429 rate ≤0.8%; drop to 5 if a 14-day window exceeds 1%), verify liveness after spawn (background agents can silently die with no notification → 무산출), and fall back to **main-thread sequential** only for the axes that died. Do NOT launch a 16+ `run_in_background=True` fan-out — it trips server-side rate-limits and the agents die.
 
-**기본 예시 — foreground(blocking) 2-3개 배치** (안정 기본값. 경고와 일치):
+**기본 예시 — foreground(blocking) 배치** (안정 기본값. 경고와 일치):
 
 ```python
-# 한 배치 = 2-3개. 이 배치가 끝난 뒤 다음 배치를 띄운다.
-Task(
+# 한 배치 = 최대 8-10개 Agent 호출을 한 메시지에. 이 배치가 끝난 뒤 다음 배치를 띄운다.
+# 권한 모드는 세션 설정을 그대로 상속한다(호출별 권한 덮어쓰기 없음).
+Agent(
     subagent_type="Explore",
     description="Research subtopic A",
     prompt="Detailed research instructions...",
-    mode="bypassPermissions",
 )
-Task(
+Agent(
     subagent_type="general-purpose",
     description="Research subtopic B",
     prompt="...",
-    mode="bypassPermissions",
 )
 ```
 
