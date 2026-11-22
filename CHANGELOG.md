@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.12.0] - 2026-11-22
+- Narrower trigger
+- Light path for 1-2 search questions
+- Answer length proportional to question
+
 ## [2.11.1] - 2026-11-03
 - **배치 폭 2~3 → 8~10.** 14일 세션 로그 실측(2026-11-03) 429 비율 0.0~0.8%로, 2026-07 이전 벤치 기준이던 "2–3개씩 순차 배치"를 8–10 동시 배치로 올렸다. Workflow 팬아웃 폭 5–6 → 8–10, 한 번에 제출 상한 10 → 12(`workflowSizeGuideline: large` 기준). 교차검증 단계는 5. 14일 창 429가 1%를 넘으면 되돌린다. SKILL.md·workflow_fanout.md·agent_prompts.md·tool_strategy.md.
 
