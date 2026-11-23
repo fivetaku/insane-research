@@ -10,6 +10,47 @@ description: Use when the user wants a topic researched, investigated, compared,
 
 > Multi-source web research with state management, multi-agent source verification, deterministic claim gates, and structured outputs.
 
+## 실행 환경 (Claude Code / Codex)
+
+- **Claude Code**: 선택지 질문은 `AskUserQuestion`으로 묻는다. 팬아웃은 Agent 도구(또는 Workflow)로 한다.
+- **Codex**: 시작 전에 이 폴더의 `references/codex.md`를 읽는다(질문 도구 순서·`spawn_agent`·insane-search 호출 차이). async 호출 형식: `{"questions":[{"title":"헤더 — 질문","options":["추천안 (추천) — 설명","대안 — 설명"]}]}` — 문항에는 `title`·`options`만, `question`·`header`·`id`는 넣지 않는다.
+- Codex에서는 `${CLAUDE_PLUGIN_ROOT}`를 이 플러그인 루트(이 SKILL.md에서 두 단계 위 폴더)로 바꿔 읽는다. 아래 `references/…`·`scripts/…`는 이 SKILL.md가 있는 폴더 기준이다.
+
+## 인자 해석 (`/insane-research <인자>`)
+
+명령 인자(`$ARGUMENTS`) 또는 사용자 요청을 보고 동작을 정한다:
+
+| 인자 | 동작 | 스킬 |
+|---|---|---|
+| `resume [session_id]` | 이전 리서치 세션 재개 | 이 스킬 |
+| `status` | `RESEARCH/*/state.json`의 모든 세션과 진행도 나열 | 이 스킬 |
+| `query` | 대화형 쿼리 빌더 | insane-research-query 스킬을 열어 따른다 |
+| `refs <주제>` | 라이트 모드 — 레퍼런스 이미지만 수집(보고서 없음) | insane-research-refs 스킬을 열어 따른다 |
+| 그 외 텍스트 | 그 주제로 새 리서치 | 이 스킬 |
+| (인자 없음) | 아래 메뉴를 **AskUserQuestion으로 즉시 호출** | — |
+
+**인자 없음 — 메뉴:** 아래 JSON으로 AskUserQuestion 도구를 즉시 호출한다:
+
+```json
+{
+  "questions": [
+    {
+      "question": "What would you like to do?",
+      "header": "Action",
+      "options": [
+        {"label": "New Research", "description": "Start a new deep research on any topic", "markdown": "## New Research\n\n**Flow**: Topic → Scoping → Multi-agent search → Synthesis → Report\n\n**Output**:\n- Executive summary\n- Full report (20-50+ pages)\n- Bibliography with quality ratings\n- Optional interactive website\n\n**Duration**: 10-30 min depending on scope"},
+        {"label": "Resume Session", "description": "Continue a previously interrupted research", "markdown": "## Resume Session\n\n**What it does**:\n- Lists all previous research sessions\n- Shows progress (Phase 1-7)\n- Resumes from last checkpoint\n\n**State**: Saved in `RESEARCH/*/state.json`"},
+        {"label": "Session Status", "description": "View all research sessions and their progress", "markdown": "## Session Status\n\n**Shows**:\n- All research sessions\n- Current phase (1-7)\n- Source count\n- Last updated time\n\n**Path**: `RESEARCH/*/state.json`"},
+        {"label": "Query Builder", "description": "Create a structured research query interactively", "markdown": "## Query Builder\n\n**Interactive wizard** to create precise research queries:\n\n1. Topic selection\n2. Research type (Exploratory/Comparative/Analytical/Predictive)\n3. Geographic scope\n4. Source quality level (A-D)\n5. Output format\n\n**Output**: Structured JSON query ready for execution"}
+      ],
+      "multiSelect": false
+    }
+  ]
+}
+```
+
+선택 후: **New Research** → 주제를 물은 뒤 아래 파이프라인 / **Resume Session** → `RESEARCH/*/state.json` 세션을 나열해 고르게 한 뒤 재개 / **Session Status** → 세션별 진행 요약 / **Query Builder** → insane-research-query 스킬.
+
 ## Trigger Conditions
 
 - New research: `/insane-research [topic]`, `/research [topic]`, "딥리서치 [주제]", "심층 연구 [주제]", "[주제]에 대해 리서치해줘", "[주제] 리서치", "deep research on [topic]"

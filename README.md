@@ -28,6 +28,8 @@ Turn a single question into a comprehensive, citation-backed research report —
 /plugin install insane-research
 ```
 
+Codex: `codex plugin marketplace add fivetaku/gptaku_plugins` then `codex plugin add insane-research@gptaku-plugins`.
+
 ### 3. Restart Claude Code
 
 Cache loads on startup — a restart is required after install.

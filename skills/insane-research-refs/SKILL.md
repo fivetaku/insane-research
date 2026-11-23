@@ -10,6 +10,8 @@ description: Lightweight reference-image collection — finds a handful of live 
 
 > 리서치가 아니라 **수집**이다. 주장 검증·보고서·claim ledger·게이트(`insane-research-main`의 Phase 4~7)를 돌리지 않는다. 후보 페이지 몇 개를 찾고, 그 페이지의 큰 이미지만 내려받아 표 하나로 남긴다. 목표 시간은 수 분이다.
 
+Codex에서는 `${CLAUDE_PLUGIN_ROOT}`를 이 플러그인 루트(이 SKILL.md에서 두 단계 위 폴더)로 바꿔 읽는다. insane-search 엔진 경로는 `../insane-research-main/references/codex.md`를 따른다.
+
 ## 입력
 
 호출 args(자연어 또는 키=값)에서 읽는다. 없는 값은 기본값으로 진행하고 **질문하지 않는다**(호출한 스킬이 이미 사용자와 이야기했다).

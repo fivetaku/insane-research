@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.13.0] - 2026-11-23
+- **Codex에서도 같은 스킬로 동작.** 명령에만 있던 인자 해석 표·인자 없음 메뉴를 `insane-research-main/SKILL.md`로 옮기고 명령은 얇게 줄였다(Claude Code 동작 동일). 실행 환경 블록과 `references/codex.md`(질문 도구 4단계, `spawn_agent`·순차 실행, 다른 스킬은 SKILL.md를 열어 따름, insane-search 엔진 경로)를 추가했다.
+
 ## [2.12.0] - 2026-11-22
 - Narrower trigger
 - Light path for 1-2 search questions

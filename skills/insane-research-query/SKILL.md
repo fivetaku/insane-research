@@ -10,6 +10,12 @@ description: This skill should be used when a user wants to build a structured r
 
 > Transform vague research ideas into structured, actionable research queries.
 
+## 실행 환경 (Claude Code / Codex)
+
+- **Claude Code**: 아래 "EXECUTE" 질문은 `AskUserQuestion`으로 묻는다.
+- **Codex**: 시작 전에 `../insane-research-main/references/codex.md`를 읽는다. async 호출 형식: `{"questions":[{"title":"헤더 — 질문","options":["추천안 (추천) — 설명","대안 — 설명"]}]}` — 문항에는 `title`·`options`만, `question`·`header`·`id`는 넣지 않는다.
+- Codex에서는 `${CLAUDE_PLUGIN_ROOT}`를 이 플러그인 루트(이 SKILL.md에서 두 단계 위 폴더)로 바꿔 읽는다.
+
 ## Trigger Conditions
 
 ```

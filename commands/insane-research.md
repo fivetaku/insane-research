@@ -27,54 +27,12 @@ If the output is empty, just continue silently. (AskUserQuestion must NOT be in 
 
 > **질문 원칙 (shared/questioning-policy.md)**: 리서치 전 범위 좁히기 질문은 추론 가능한 건 묻지 말고 기본값으로 확인하며, 정말 불명확한 것만 묻는다(§1). 이미 구체적인 질문이면 과잉질문 없이 바로 진행(§2c).
 
-AI-powered deep research system that conducts multi-step research autonomously with source verification and structured outputs.
+# /insane-research Command
 
-## Parse Arguments
+인자: `$ARGUMENTS`
 
-Inspect `$ARGUMENTS` to determine the action:
+**지금 바로** `${CLAUDE_PLUGIN_ROOT}/skills/insane-research-main/SKILL.md`를 Read하고, 그 "인자 해석" 표와 파이프라인을 이 명령의 실행 지시서로 따른다. 참고 자료가 아니라 지금 실행할 절차다.
 
-| Argument Pattern | Action | Skill |
-|-----------------|--------|-------|
-| `resume [session_id]` | Resume a previous research session | insane-research-main |
-| `status` | List all research sessions and their progress | insane-research-main |
-| `query` | Launch interactive query builder | insane-research-query |
-| `refs <topic>` | Light mode — collect reference images only (no report) | insane-research-refs |
-| `[any other text]` | Start new research on the given topic | insane-research-main |
-| (no argument) | Show interactive menu via AskUserQuestion | See below |
-
-## No Argument Provided
-
-**EXECUTE:** 아래 JSON으로 AskUserQuestion 도구를 즉시 호출한다:
-
-```json
-{
-  "questions": [
-    {
-      "question": "What would you like to do?",
-      "header": "Action",
-      "options": [
-        {"label": "New Research", "description": "Start a new deep research on any topic", "markdown": "## New Research\n\n**Flow**: Topic → Scoping → Multi-agent search → Synthesis → Report\n\n**Output**:\n- Executive summary\n- Full report (20-50+ pages)\n- Bibliography with quality ratings\n- Optional interactive website\n\n**Duration**: 10-30 min depending on scope"},
-        {"label": "Resume Session", "description": "Continue a previously interrupted research", "markdown": "## Resume Session\n\n**What it does**:\n- Lists all previous research sessions\n- Shows progress (Phase 1-7)\n- Resumes from last checkpoint\n\n**State**: Saved in `RESEARCH/*/state.json`"},
-        {"label": "Session Status", "description": "View all research sessions and their progress", "markdown": "## Session Status\n\n**Shows**:\n- All research sessions\n- Current phase (1-7)\n- Source count\n- Last updated time\n\n**Path**: `RESEARCH/*/state.json`"},
-        {"label": "Query Builder", "description": "Create a structured research query interactively", "markdown": "## Query Builder\n\n**Interactive wizard** to create precise research queries:\n\n1. Topic selection\n2. Research type (Exploratory/Comparative/Analytical/Predictive)\n3. Geographic scope\n4. Source quality level (A-D)\n5. Output format\n\n**Output**: Structured JSON query ready for execution"}
-      ],
-      "multiSelect": false
-    }
-  ]
-}
-```
-
-After user selection:
-- **New Research** → Ask for topic, then invoke insane-research-main skill
-- **Resume Session** → List sessions from `RESEARCH/*/state.json`, let user pick, then invoke insane-research-main resume flow
-- **Session Status** → List all sessions with progress summary
-- **Query Builder** → Invoke insane-research-query skill
-
-## Execute
-
-Once the action is determined, follow the corresponding skill's execution flow.
-
-Skill content is located at:
-- `${CLAUDE_PLUGIN_ROOT}/skills/insane-research-main/SKILL.md` — Main research pipeline
-- `${CLAUDE_PLUGIN_ROOT}/skills/insane-research-query/SKILL.md` — Interactive query builder
-- `${CLAUDE_PLUGIN_ROOT}/skills/insane-research-refs/SKILL.md` — Reference image collection (light mode)
+- 인자 없음 메뉴·스코핑 질문은 **AskUserQuestion 도구를 실제로 호출**한다(채팅 번호 목록으로 대신하지 않는다).
+- `query`는 `${CLAUDE_PLUGIN_ROOT}/skills/insane-research-query/SKILL.md`, `refs <주제>`는 `${CLAUDE_PLUGIN_ROOT}/skills/insane-research-refs/SKILL.md`를 읽고 따른다.
+- SKILL.md의 `references/…`는 해당 스킬 폴더 기준이다. `references/codex.md`는 Codex 전용이라 읽지 않는다.
